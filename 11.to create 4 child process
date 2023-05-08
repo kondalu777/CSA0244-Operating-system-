@@ -1,0 +1,42 @@
+ #include <stdio.h>
+#include <unistd.h>
+#include <signal.h>
+
+#define ERROR(m) perror("Error while: "#m); \
+  return 1;
+
+void handler(int sig){
+  // do nothing
+}
+
+int main(void){
+  pid_t child_pid;
+  pid_t parent_pid;
+  struct sigaction sa;
+  parent_pid = getpid();
+
+  sigemptyset(&sa.sa_mask);
+  sa.sa_handler = handler;
+  sa.sa_flags = 0;
+  if(sigaction(SIGUSR1,&sa,NULL) == -1){
+    ERROR("sigaction()");
+  }
+
+  switch(child_pid = fork()){
+  case -1: // in case of error
+    ERROR("fork()");
+  case 0:  // child
+    for(int number = 2; number <= 10; number += 2){
+      pause(); // waiting for any type of signal
+      printf("Child: %d\n",number);
+      kill(parent_pid,SIGUSR1);
+    }
+    break;
+  default:  // parent
+    for(int number = 1; number <= 9; number += 2){
+      printf("Parent: %d\n",number);
+      kill(child_pid,SIGUSR1);
+      pause();
+    }
+    break;
+  }
