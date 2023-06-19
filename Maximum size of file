@@ -1,0 +1,61 @@
+
+#include <stdio.h>
+#include <stdlib.h>
+
+// Define constants
+#define BLOCK_SIZE 8192 // 8 KB
+#define BLOCK_PTR_SIZE 4 // 4 bytes for a block pointer
+#define NUM_DIRECT_BLOCKS 12
+#define NUM_INDIRECT_BLOCKS 256
+
+int main()
+{
+    int num_blocks;
+    printf("Enter the number of contiguous blocks required by the file: ");
+    scanf("%d", &num_blocks);
+
+    
+    int max_file_size = NUM_DIRECT_BLOCKS * BLOCK_SIZE;
+
+    // Calculate the size of an indirect block in bytes
+    int indirect_block_size = BLOCK_SIZE / BLOCK_PTR_SIZE;
+
+   
+    int max_single_indirect_blocks = NUM_INDIRECT_BLOCKS;
+
+   
+    int max_double_indirect_blocks = NUM_INDIRECT_BLOCKS * NUM_INDIRECT_BLOCKS;
+
+   
+    int max_triple_indirect_blocks = NUM_INDIRECT_BLOCKS * NUM_INDIRECT_BLOCKS * NUM_INDIRECT_BLOCKS;
+
+   
+    if (num_blocks <= NUM_DIRECT_BLOCKS) {
+        max_file_size = num_blocks * BLOCK_SIZE;
+    }
+    else if (num_blocks <= NUM_DIRECT_BLOCKS + max_single_indirect_blocks) {
+        int remaining_blocks = num_blocks - NUM_DIRECT_BLOCKS;
+        max_file_size = NUM_DIRECT_BLOCKS * BLOCK_SIZE + remaining_blocks * BLOCK_SIZE;
+    }
+    else if (num_blocks <= NUM_DIRECT_BLOCKS + max_single_indirect_blocks + max_double_indirect_blocks) {
+        int remaining_blocks = num_blocks - NUM_DIRECT_BLOCKS - max_single_indirect_blocks;
+        max_file_size = NUM_DIRECT_BLOCKS * BLOCK_SIZE + max_single_indirect_blocks * BLOCK_SIZE
+            + remaining_blocks * BLOCK_SIZE * BLOCK_PTR_SIZE;
+    }
+    else if (num_blocks <= NUM_DIRECT_BLOCKS + max_single_indirect_blocks + max_double_indirect_blocks + max_triple_indirect_blocks) {
+        int remaining_blocks = num_blocks - NUM_DIRECT_BLOCKS - max_single_indirect_blocks - max_double_indirect_blocks;
+        max_file_size = NUM_DIRECT_BLOCKS * BLOCK_SIZE + max_single_indirect_blocks * BLOCK_SIZE
+            + max_double_indirect_blocks * BLOCK_SIZE * BLOCK_PTR_SIZE
+            + remaining_blocks * BLOCK_SIZE * BLOCK_PTR_SIZE * BLOCK_PTR_SIZE;
+    }
+    // Otherwise, the file is too large to be stored in this file system
+    else {
+        printf("File too large to be stored in this file system\n");
+        return 0;
+    }
+
+    // Print the maximum file size in bytes
+    printf("Maximum file size: %d bytes\n", max_file_size);
+
+    return 0;
+}
