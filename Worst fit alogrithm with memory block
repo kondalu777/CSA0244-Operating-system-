@@ -1,0 +1,101 @@
+#include <stdio.h>
+
+#define MAX_PARTITIONS 100
+
+// Structure to represent a memory partition
+
+struct Partition {
+
+    int size;
+
+    int allocated;
+
+};
+
+// Function to allocate memory using worst-fit algorithm
+
+void worst_fit_allocation(struct Partition partitions[], int num_partitions, int process_sizes[], int num_processes) {
+
+    int i, j, worst_fit_index;
+
+    // Iterate through each process
+
+    for (i = 0; i < num_processes; i++) {
+
+        worst_fit_index = -1;
+
+        // Find the largest partition that can accommodate the current process
+
+        for (j = 0; j < num_partitions; j++) {
+
+            if (partitions[j].allocated == 0 && partitions[j].size >= process_sizes[i]) {
+
+                if (worst_fit_index == -1 || partitions[j].size > partitions[worst_fit_index].size) {
+
+                    worst_fit_index = j;
+
+                }
+
+            }
+
+        }
+
+        // Allocate the partition to the process
+
+        if (worst_fit_index != -1) {
+
+            partitions[worst_fit_index].allocated = 1;
+
+            printf("Allocated Process %d (size %d KB) to Partition %d (size %d KB)\n",
+
+                   i + 1, process_sizes[i], worst_fit_index + 1, partitions[worst_fit_index].size);
+
+        } else {
+
+            printf("Cannot allocate Process %d (size %d KB)\n", i + 1, process_sizes[i]);
+
+        }
+
+    }
+
+}
+
+int main() {
+
+    int num_partitions, num_processes;
+
+    printf("Enter the number of memory partitions: ");
+
+    scanf("%d", &num_partitions);
+
+    printf("Enter the sizes of memory partitions (in KB):\n");
+
+    struct Partition partitions[MAX_PARTITIONS];
+
+    for (int i = 0; i < num_partitions; i++) {
+
+        scanf("%d", &partitions[i].size);
+
+        partitions[i].allocated = 0;
+
+    }
+
+    printf("Enter the number of processes: ");
+
+    scanf("%d", &num_processes);
+
+    printf("Enter the sizes of processes (in KB):\n");
+
+    int process_sizes[MAX_PARTITIONS];
+
+    for (int i = 0; i < num_processes; i++) {
+
+        scanf("%d", &process_sizes[i]);
+
+    }
+
+    worst_fit_allocation(partitions, num_partitions, process_sizes, num_processes);
+
+    return 0;
+
+}
